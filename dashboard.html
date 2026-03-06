@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enriched Subscriptions Dashboard</title>
+  <style>
+    :root {
+      --bg: #f6f2eb;
+      --paper: #fffdf9;
+      --ink: #1f1f1f;
+      --muted: #5d5a54;
+      --accent: #0f5f5c;
+      --accent-soft: #d9eceb;
+      --warning: #b35c2e;
+      --border: #e1d8ca;
+      --shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(15, 95, 92, 0.12), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(179, 92, 46, 0.12), transparent 35%),
+        var(--bg);
+      color: var(--ink);
+      font-family: "Manrope", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+      line-height: 1.35;
+    }
+
+    .layout {
+      width: min(1240px, 100% - 2rem);
+      margin: 1.5rem auto 2rem;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1.7fr 1fr;
+      grid-template-areas:
+        "hero hero"
+        "filters filters"
+        "kpis kpis"
+        "charts insights"
+        "table table";
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      grid-area: hero;
+      padding: 1.2rem 1.3rem;
+      display: grid;
+      gap: 0.75rem;
+      background:
+        linear-gradient(125deg, rgba(15, 95, 92, 0.92), rgba(20, 47, 84, 0.96));
+      color: #f9f5ed;
+      border: none;
+    }
+
+    .eyebrow {
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.78rem;
+      font-weight: 700;
+      opacity: 0.85;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+      font-size: clamp(1.45rem, 3.2vw, 2.4rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-subtitle {
+      margin: 0;
+      max-width: 78ch;
+      color: rgba(248, 245, 236, 0.95);
+      font-size: 0.96rem;
+    }
+
+    .hero-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: center;
+    }
+
+    .file-picker {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.55rem 0.9rem;
+      border-radius: 999px;
+      background: rgba(249, 245, 236, 0.18);
+      border: 1px solid rgba(249, 245, 236, 0.32);
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .file-picker:hover {
+      background: rgba(249, 245, 236, 0.25);
+    }
+
+    .file-picker input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .meta-chip {
+      padding: 0.5rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(249, 245, 236, 0.16);
+      border: 1px solid rgba(249, 245, 236, 0.28);
+      font-size: 0.84rem;
+      color: rgba(249, 245, 236, 0.95);
+    }
+
+    .filters {
+      grid-area: filters;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0.8rem;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.3rem;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .field input,
+    .field select,
+    .field button {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.55rem 0.7rem;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      min-width: 0;
+    }
+
+    .field input:focus-visible,
+    .field select:focus-visible,
+    .field button:focus-visible,
+    a:focus-visible,
+    summary:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .field.search {
+      grid-column: span 4;
+    }
+
+    .field.category {
+      grid-column: span 3;
+    }
+
+    .field.sort {
+      grid-column: span 2;
+    }
+
+    .range-group {
+      grid-column: span 2;
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .range-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      padding: 0;
+      border: none;
+      background: transparent;
+    }
+
+    .field.reset {
+      grid-column: span 1;
+    }
+
+    .field.reset button {
+      background: var(--accent-soft);
+      border-color: #b7d8d6;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .kpis {
+      grid-area: kpis;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+
+    .kpi {
+      padding: 0.9rem;
+      display: grid;
+      gap: 0.2rem;
+      background: linear-gradient(160deg, #fffdf8, #fcf6eb);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .kpi .label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+    }
+
+    .kpi .value {
+      margin: 0;
+      font-size: clamp(1.1rem, 2.4vw, 1.55rem);
+      letter-spacing: -0.01em;
+      font-weight: 800;
+    }
+
+    .charts {
+      grid-area: charts;
+      padding: 1rem;
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .chart-wrap {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem;
+      background: #fff;
+    }
+
+    .chart-title {
+      margin: 0 0 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .insights {
+      grid-area: insights;
+      padding: 1rem;
+      display: grid;
+      gap: 0.8rem;
+      align-content: start;
+    }
+
+    .insight-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem;
+      background: #fff;
+    }
+
+    .insight-card h2 {
+      margin: 0 0 0.4rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .insight-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .insight-list li {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.5rem;
+      align-items: baseline;
+      font-size: 0.9rem;
+      color: var(--ink);
+    }
+
+    .insight-list li span:last-child {
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .audit-list {
+      margin: 0;
+      padding-left: 1.1rem;
+      display: grid;
+      gap: 0.3rem;
+      color: var(--ink);
+      font-size: 0.9rem;
+    }
+
+    .heatmap {
+      display: grid;
+      gap: 0.3rem;
+      margin-top: 0.4rem;
+    }
+
+    .heatmap-row {
+      display: grid;
+      grid-template-columns: 90px repeat(5, 1fr);
+      gap: 0.3rem;
+      align-items: stretch;
+      min-width: 0;
+    }
+
+    .heatmap-header {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 700;
+      text-align: center;
+      padding-bottom: 0.1rem;
+    }
+
+    .heatmap-label {
+      font-size: 0.73rem;
+      color: var(--muted);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+    }
+
+    .heatmap-cell {
+      min-height: 26px;
+      border-radius: 7px;
+      border: 1px solid #d5e6e5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.73rem;
+      color: #0f3735;
+      font-variant-numeric: tabular-nums;
+      padding: 0.1rem;
+    }
+
+    .table-panel {
+      grid-area: table;
+      padding: 0;
+      display: grid;
+      min-height: 340px;
+    }
+
+    .table-header {
+      padding: 0.9rem 1rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 0.8rem;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+
+    .table-header h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-family: "Space Grotesk", "Avenir Next", sans-serif;
+      letter-spacing: -0.01em;
+    }
+
+    .table-note {
+      margin: 0;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: 440px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid #eee7db;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th button {
+      border: none;
+      background: none;
+      padding: 0;
+      margin: 0;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    td.about-cell {
+      max-width: 440px;
+      color: #47443f;
+    }
+
+    td a {
+      color: #145e87;
+      text-underline-offset: 2px;
+      word-break: break-word;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      border-top: 1px solid var(--border);
+      padding: 0.7rem 1rem;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .pagination-controls {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .pagination-controls button {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      padding: 0.35rem 0.55rem;
+      cursor: pointer;
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.83rem;
+    }
+
+    .pagination-controls button:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+
+    .status {
+      padding: 0.65rem 0.9rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      border: 1px solid transparent;
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .status.ok {
+      color: #0f4f4d;
+      background: #d6eceb;
+      border-color: #b4d9d8;
+    }
+
+    .status.error {
+      color: #713718;
+      background: #f8e1d7;
+      border-color: #ebc6b2;
+    }
+
+    .empty-state {
+      padding: 1.2rem;
+      color: var(--muted);
+    }
+
+    .fade-in {
+      animation: rise 380ms ease;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "hero"
+          "filters"
+          "kpis"
+          "charts"
+          "insights"
+          "table";
+      }
+
+      .filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .field.search,
+      .field.category,
+      .field.sort,
+      .range-group,
+      .field.reset {
+        grid-column: auto;
+      }
+
+      .kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .heatmap-row {
+        grid-template-columns: 80px repeat(5, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .layout {
+        width: min(100% - 1rem, 100%);
+        margin: 0.7rem auto 1rem;
+      }
+
+      .hero,
+      .filters,
+      .charts,
+      .insights {
+        padding: 0.75rem;
+      }
+
+      .kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .table-wrap {
+        max-height: 360px;
+      }
+
+      .pagination {
+        padding: 0.65rem 0.75rem;
+      }
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <main class="layout" aria-live="polite">
+    <section class="panel hero fade-in" aria-label="Dashboard introduction">
+      <p class="eyebrow">YouTube Subscriptions Explorer</p>
+      <h1>Enriched Subscriptions Dashboard</h1>
+      <p class="hero-subtitle">
+        Load an enriched subscriptions CSV and explore channels with filtering, category analytics,
+        subscriber distributions, and audit panels for data quality.
+      </p>
+      <div class="hero-controls">
+        <label class="file-picker">
+          Load Enriched CSV
+          <input id="csvInput" type="file" accept=".csv,text/csv" aria-label="Upload enriched subscriptions CSV" />
+        </label>
+        <div class="meta-chip" id="loadedFile">No file loaded</div>
+        <div class="meta-chip" id="rowCount">0 channels</div>
+      </div>
+      <div id="status" class="status ok" role="status">Choose an enriched CSV file to begin.</div>
+    </section>
+
+    <section class="panel filters fade-in" aria-label="Filtering controls">
+      <div class="field search">
+        <label for="searchInput">Search title and about</label>
+        <input id="searchInput" type="search" placeholder="e.g. design, AI, tutorials" />
+      </div>
+
+      <div class="field category">
+        <label for="categoryFilter">Primary category</label>
+        <select id="categoryFilter" multiple size="3" aria-label="Filter by category"></select>
+      </div>
+
+      <div class="field sort">
+        <label for="sortBy">Sort</label>
+        <select id="sortBy" aria-label="Sort rows">
+          <option value="subscribers-desc">Subscribers (high to low)</option>
+          <option value="subscribers-asc">Subscribers (low to high)</option>
+          <option value="title-asc">Title (A to Z)</option>
+          <option value="title-desc">Title (Z to A)</option>
+          <option value="category-asc">Category (A to Z)</option>
+        </select>
+      </div>
+
+      <div class="range-group">
+        <div class="range-label">
+          <span>Min Subscribers</span>
+          <span id="minSubsLabel">0</span>
+        </div>
+        <input id="minSubs" type="range" min="0" max="100" value="0" step="1" aria-label="Minimum subscribers" />
+      </div>
+
+      <div class="range-group">
+        <div class="range-label">
+          <span>Max Subscribers</span>
+          <span id="maxSubsLabel">0</span>
+        </div>
+        <input id="maxSubs" type="range" min="0" max="100" value="100" step="1" aria-label="Maximum subscribers" />
+      </div>
+
+      <div class="field reset">
+        <label for="resetFilters">Actions</label>
+        <button id="resetFilters" type="button">Reset</button>
+      </div>
+    </section>
+
+    <section class="kpis fade-in" aria-label="Summary metrics">
+      <article class="kpi panel">
+        <p class="label">Filtered Channels</p>
+        <p class="value" id="kpiFiltered">0</p>
+      </article>
+      <article class="kpi panel">
+        <p class="label">Median Subscribers</p>
+        <p class="value" id="kpiMedian">0</p>
+      </article>
+      <article class="kpi panel">
+        <p class="label">Largest Channel</p>
+        <p class="value" id="kpiMax">0</p>
+      </article>
+      <article class="kpi panel">
+        <p class="label">Primary Categories</p>
+        <p class="value" id="kpiCategories">0</p>
+      </article>
+    </section>
+
+    <section class="panel charts fade-in" aria-label="Charts">
+      <article class="chart-wrap">
+        <p class="chart-title">Top Primary Categories</p>
+        <canvas id="categoryChart" height="220" aria-label="Category distribution chart" role="img"></canvas>
+      </article>
+      <article class="chart-wrap">
+        <p class="chart-title">Subscriber Distribution (Log Buckets)</p>
+        <canvas id="subscriberChart" height="220" aria-label="Subscriber distribution chart" role="img"></canvas>
+      </article>
+    </section>
+
+    <aside class="panel insights fade-in" aria-label="Insight panels">
+      <section class="insight-card">
+        <h2>Top Channels</h2>
+        <ol id="topChannels" class="insight-list"></ol>
+      </section>
+
+      <section class="insight-card">
+        <h2>Missing Data Audit</h2>
+        <ul id="auditList" class="audit-list"></ul>
+      </section>
+
+      <section class="insight-card">
+        <h2>Category x Subscriber Tier</h2>
+        <div id="heatmap" class="heatmap" role="table" aria-label="Category and subscriber tier heatmap"></div>
+      </section>
+    </aside>
+
+    <section class="panel table-panel fade-in" aria-label="Channel table">
+      <div class="table-header">
+        <div>
+          <h2>Channels</h2>
+          <p class="table-note" id="tableSummary">Load a file to show results.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><button type="button" data-sort="title">Title</button></th>
+              <th><button type="button" data-sort="category">Primary Category</button></th>
+              <th><button type="button" data-sort="subscribers">Subscribers</button></th>
+              <th>Channel Link</th>
+              <th>About</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="5" class="empty-state">No data loaded.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <div id="pageInfo">Page 0 of 0</div>
+        <div class="pagination-controls">
+          <button type="button" id="prevPage" disabled>Previous</button>
+          <button type="button" id="nextPage" disabled>Next</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script>
+    const REQUIRED_COLUMNS = [
+      "channel_id",
+      "title",
+      "description",
+      "thumbnail_url",
+      "subscribed_at",
+      "link",
+      "subscribers",
+      "subscribers_readable",
+      "about",
+      "category",
+    ];
+
+    const PAGE_SIZE = 25;
+    const DEBOUNCE_MS = 180;
+    const SUBSCRIBER_TIERS = [
+      { label: "<10K", min: 0, max: 9_999 },
+      { label: "10K-100K", min: 10_000, max: 99_999 },
+      { label: "100K-1M", min: 100_000, max: 999_999 },
+      { label: "1M-10M", min: 1_000_000, max: 9_999_999 },
+      { label: ">10M", min: 10_000_000, max: Number.POSITIVE_INFINITY },
+    ];
+
+    const els = {
+      csvInput: document.getElementById("csvInput"),
+      loadedFile: document.getElementById("loadedFile"),
+      rowCount: document.getElementById("rowCount"),
+      status: document.getElementById("status"),
+      searchInput: document.getElementById("searchInput"),
+      categoryFilter: document.getElementById("categoryFilter"),
+      sortBy: document.getElementById("sortBy"),
+      minSubs: document.getElementById("minSubs"),
+      maxSubs: document.getElementById("maxSubs"),
+      minSubsLabel: document.getElementById("minSubsLabel"),
+      maxSubsLabel: document.getElementById("maxSubsLabel"),
+      resetFilters: document.getElementById("resetFilters"),
+      kpiFiltered: document.getElementById("kpiFiltered"),
+      kpiMedian: document.getElementById("kpiMedian"),
+      kpiMax: document.getElementById("kpiMax"),
+      kpiCategories: document.getElementById("kpiCategories"),
+      topChannels: document.getElementById("topChannels"),
+      auditList: document.getElementById("auditList"),
+      heatmap: document.getElementById("heatmap"),
+      tableBody: document.getElementById("tableBody"),
+      tableSummary: document.getElementById("tableSummary"),
+      pageInfo: document.getElementById("pageInfo"),
+      prevPage: document.getElementById("prevPage"),
+      nextPage: document.getElementById("nextPage"),
+    };
+
+    // Global state is intentionally centralized so every view (KPIs/charts/table)
+    // can be re-rendered from one filtered dataset without drifting behavior.
+    const state = {
+      allRows: [],
+      filteredRows: [],
+      categoryOptions: [],
+      fileName: "",
+      maxSubscribersInDataset: 0,
+      filters: {
+        search: "",
+        categories: new Set(),
+        minSubscribers: 0,
+        maxSubscribers: 0,
+        sort: "subscribers-desc",
+      },
+      page: 1,
+      tableSort: {
+        key: null,
+        dir: "asc",
+      },
+      charts: {
+        category: null,
+        subscribers: null,
+      },
+    };
+
+    function debounce(fn, delay) {
+      let timeout = null;
+      return (...args) => {
+        window.clearTimeout(timeout);
+        timeout = window.setTimeout(() => fn(...args), delay);
+      };
+    }
+
+    function parseSubscribers(value) {
+      if (value === null || value === undefined) {
+        return 0;
+      }
+      const text = String(value).replace(/[,\s]/g, "").trim();
+      const numeric = Number.parseInt(text, 10);
+      return Number.isFinite(numeric) && numeric >= 0 ? numeric : 0;
+    }
+
+    function getPrimaryCategory(value) {
+      if (!value) {
+        return "Uncategorized";
+      }
+      const first = String(value)
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)[0];
+      return first || "Uncategorized";
+    }
+
+    function compactText(value) {
+      return String(value || "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function formatInt(value) {
+      return Number(value || 0).toLocaleString("en-US");
+    }
+
+    function percentile(sortedValues, p) {
+      if (!sortedValues.length) {
+        return 0;
+      }
+      const index = Math.floor(p * (sortedValues.length - 1));
+      return sortedValues[index] || 0;
+    }
+
+    function formatRangeLabel(value) {
+      return Number(value).toLocaleString("en-US");
+    }
+
+    function logBins(values) {
+      const bins = [
+        { label: "0-999", min: 0, max: 999, count: 0 },
+        { label: "1K-9K", min: 1_000, max: 9_999, count: 0 },
+        { label: "10K-99K", min: 10_000, max: 99_999, count: 0 },
+        { label: "100K-999K", min: 100_000, max: 999_999, count: 0 },
+        { label: "1M-9M", min: 1_000_000, max: 9_999_999, count: 0 },
+        { label: "10M+", min: 10_000_000, max: Number.POSITIVE_INFINITY, count: 0 },
+      ];
+
+      for (const value of values) {
+        const target = bins.find((bin) => value >= bin.min && value <= bin.max);
+        if (target) {
+          target.count += 1;
+        }
+      }
+      return bins;
+    }
+
+    function setStatus(message, isError = false) {
+      els.status.textContent = message;
+      els.status.className = isError ? "status error" : "status ok";
+    }
+
+    function setupCategoryOptions(options) {
+      els.categoryFilter.innerHTML = "";
+      for (const category of options) {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+        els.categoryFilter.appendChild(option);
+      }
+    }
+
+    // Normalize each CSV row once up-front to avoid repeated parsing work during filtering.
+    function normalizeRow(rawRow) {
+      const subscribers = parseSubscribers(rawRow.subscribers);
+      const title = compactText(rawRow.title);
+      const about = compactText(rawRow.about || rawRow.description);
+      const primaryCategory = getPrimaryCategory(rawRow.category);
+      return {
+        channelId: compactText(rawRow.channel_id),
+        title,
+        description: compactText(rawRow.description),
+        thumbnailUrl: compactText(rawRow.thumbnail_url),
+        subscribedAt: compactText(rawRow.subscribed_at),
+        link: compactText(rawRow.link),
+        subscribers,
+        subscribersReadable: compactText(rawRow.subscribers_readable) || formatInt(subscribers),
+        about,
+        category: compactText(rawRow.category),
+        primaryCategory,
+        searchBlob: `${title} ${about}`.toLowerCase(),
+      };
+    }
+
+    function validateColumns(columns) {
+      const lower = new Set(columns.map((column) => String(column).trim().toLowerCase()));
+      const missing = REQUIRED_COLUMNS.filter((column) => !lower.has(column));
+      return missing;
+    }
+
+    function syncRangeControls() {
+      const minValue = Number(els.minSubs.value);
+      const maxValue = Number(els.maxSubs.value);
+
+      if (minValue > maxValue) {
+        if (document.activeElement === els.minSubs) {
+          els.maxSubs.value = String(minValue);
+        } else {
+          els.minSubs.value = String(maxValue);
+        }
+      }
+
+      state.filters.minSubscribers = Number(els.minSubs.value);
+      state.filters.maxSubscribers = Number(els.maxSubs.value);
+      els.minSubsLabel.textContent = formatRangeLabel(state.filters.minSubscribers);
+      els.maxSubsLabel.textContent = formatRangeLabel(state.filters.maxSubscribers);
+    }
+
+    // Filtering is the main derivation step: all visual components consume filteredRows.
+    function applyFilters() {
+      const search = state.filters.search.trim().toLowerCase();
+      const categorySet = state.filters.categories;
+      const minSubscribers = state.filters.minSubscribers;
+      const maxSubscribers = state.filters.maxSubscribers;
+
+      state.filteredRows = state.allRows.filter((row) => {
+        if (search && !row.searchBlob.includes(search)) {
+          return false;
+        }
+
+        if (categorySet.size && !categorySet.has(row.primaryCategory)) {
+          return false;
+        }
+
+        if (row.subscribers < minSubscribers || row.subscribers > maxSubscribers) {
+          return false;
+        }
+
+        return true;
+      });
+
+      sortFilteredRows();
+      state.page = 1;
+      renderAll();
+    }
+
+    function sortFilteredRows() {
+      const sortValue = state.tableSort.key
+        ? `${state.tableSort.key}-${state.tableSort.dir}`
+        : state.filters.sort;
+
+      const [field, direction] = sortValue.split("-");
+      const sign = direction === "desc" ? -1 : 1;
+
+      state.filteredRows.sort((a, b) => {
+        if (field === "subscribers") {
+          return (a.subscribers - b.subscribers) * sign;
+        }
+
+        if (field === "category") {
+          return a.primaryCategory.localeCompare(b.primaryCategory) * sign;
+        }
+
+        return a.title.localeCompare(b.title) * sign;
+      });
+    }
+
+    function selectedCategories() {
+      return new Set(Array.from(els.categoryFilter.selectedOptions).map((option) => option.value));
+    }
+
+    function resetFilters() {
+      state.filters.search = "";
+      state.filters.categories = new Set();
+      state.filters.sort = "subscribers-desc";
+      state.tableSort = { key: null, dir: "asc" };
+
+      els.searchInput.value = "";
+      els.sortBy.value = "subscribers-desc";
+      for (const option of els.categoryFilter.options) {
+        option.selected = false;
+      }
+
+      els.minSubs.value = "0";
+      els.maxSubs.value = String(state.maxSubscribersInDataset);
+      syncRangeControls();
+      applyFilters();
+    }
+
+    function renderKpis() {
+      const subscribers = state.filteredRows.map((row) => row.subscribers).sort((a, b) => a - b);
+      const maxSubscribers = subscribers.length ? subscribers[subscribers.length - 1] : 0;
+      const categories = new Set(state.filteredRows.map((row) => row.primaryCategory));
+
+      els.kpiFiltered.textContent = formatInt(state.filteredRows.length);
+      els.kpiMedian.textContent = formatInt(percentile(subscribers, 0.5));
+      els.kpiMax.textContent = formatInt(maxSubscribers);
+      els.kpiCategories.textContent = formatInt(categories.size);
+    }
+
+    function renderTopChannels() {
+      els.topChannels.innerHTML = "";
+      const topRows = [...state.filteredRows]
+        .sort((a, b) => b.subscribers - a.subscribers)
+        .slice(0, 8);
+
+      if (!topRows.length) {
+        const empty = document.createElement("li");
+        empty.textContent = "No channels in current filter state.";
+        els.topChannels.appendChild(empty);
+        return;
+      }
+
+      for (const row of topRows) {
+        const item = document.createElement("li");
+        const name = document.createElement("span");
+        name.textContent = row.title || "Untitled channel";
+        const subs = document.createElement("span");
+        subs.textContent = formatInt(row.subscribers);
+        item.appendChild(name);
+        item.appendChild(subs);
+        els.topChannels.appendChild(item);
+      }
+    }
+
+    function renderAudit() {
+      const checks = [
+        {
+          label: "Missing link",
+          count: state.filteredRows.filter((row) => !row.link).length,
+        },
+        {
+          label: "Missing about",
+          count: state.filteredRows.filter((row) => !row.about).length,
+        },
+        {
+          label: "Uncategorized",
+          count: state.filteredRows.filter((row) => row.primaryCategory === "Uncategorized").length,
+        },
+        {
+          label: "Zero subscribers",
+          count: state.filteredRows.filter((row) => row.subscribers === 0).length,
+        },
+      ];
+
+      els.auditList.innerHTML = "";
+      for (const check of checks) {
+        const item = document.createElement("li");
+        item.textContent = `${check.label}: ${formatInt(check.count)}`;
+        els.auditList.appendChild(item);
+      }
+    }
+
+    // Heatmap highlights how dominant categories are distributed across subscriber tiers.
+    function renderHeatmap() {
+      els.heatmap.innerHTML = "";
+      const topCategories = [...new Set(state.filteredRows.map((row) => row.primaryCategory))].slice(0, 5);
+
+      const headerRow = document.createElement("div");
+      headerRow.className = "heatmap-row";
+      const spacer = document.createElement("div");
+      spacer.className = "heatmap-label";
+      spacer.textContent = "Category";
+      headerRow.appendChild(spacer);
+
+      for (const tier of SUBSCRIBER_TIERS) {
+        const cell = document.createElement("div");
+        cell.className = "heatmap-header";
+        cell.textContent = tier.label;
+        headerRow.appendChild(cell);
+      }
+      els.heatmap.appendChild(headerRow);
+
+      if (!topCategories.length) {
+        const row = document.createElement("div");
+        row.className = "empty-state";
+        row.textContent = "No data available for heatmap.";
+        els.heatmap.appendChild(row);
+        return;
+      }
+
+      for (const category of topCategories) {
+        const row = document.createElement("div");
+        row.className = "heatmap-row";
+
+        const label = document.createElement("div");
+        label.className = "heatmap-label";
+        label.textContent = category;
+        row.appendChild(label);
+
+        const counts = SUBSCRIBER_TIERS.map((tier) =>
+          state.filteredRows.filter(
+            (entry) =>
+              entry.primaryCategory === category &&
+              entry.subscribers >= tier.min &&
+              entry.subscribers <= tier.max
+          ).length
+        );
+        const maxCount = Math.max(...counts, 1);
+
+        counts.forEach((count) => {
+          const cell = document.createElement("div");
+          const intensity = 0.12 + (count / maxCount) * 0.72;
+          cell.className = "heatmap-cell";
+          cell.style.background = `rgba(15, 95, 92, ${intensity.toFixed(2)})`;
+          cell.textContent = String(count);
+          row.appendChild(cell);
+        });
+
+        els.heatmap.appendChild(row);
+      }
+    }
+
+    function ensureCharts() {
+      if (!window.Chart) {
+        setStatus("Chart library failed to load. Check internet access for CDN resources.", true);
+        return false;
+      }
+      return true;
+    }
+
+    // Chart datasets are rebuilt from the current filtered view to keep interactions consistent.
+    function renderCharts() {
+      if (!ensureCharts()) {
+        return;
+      }
+
+      const categoryCounts = new Map();
+      for (const row of state.filteredRows) {
+        categoryCounts.set(row.primaryCategory, (categoryCounts.get(row.primaryCategory) || 0) + 1);
+      }
+      const categoryPairs = [...categoryCounts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+
+      const categoryData = {
+        labels: categoryPairs.map((pair) => pair[0]),
+        datasets: [
+          {
+            label: "Channels",
+            data: categoryPairs.map((pair) => pair[1]),
+            backgroundColor: "rgba(15, 95, 92, 0.72)",
+            borderColor: "rgba(10, 68, 66, 0.95)",
+            borderWidth: 1,
+          },
+        ],
+      };
+
+      const subscriberBins = logBins(state.filteredRows.map((row) => row.subscribers));
+      const subscriberData = {
+        labels: subscriberBins.map((bin) => bin.label),
+        datasets: [
+          {
+            label: "Channels",
+            data: subscriberBins.map((bin) => bin.count),
+            backgroundColor: "rgba(179, 92, 46, 0.62)",
+            borderColor: "rgba(128, 66, 32, 0.92)",
+            borderWidth: 1,
+          },
+        ],
+      };
+
+      if (state.charts.category) {
+        state.charts.category.destroy();
+      }
+      if (state.charts.subscribers) {
+        state.charts.subscribers.destroy();
+      }
+
+      state.charts.category = new Chart(document.getElementById("categoryChart"), {
+        type: "bar",
+        data: categoryData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0 },
+            },
+          },
+          plugins: {
+            legend: { display: false },
+          },
+        },
+      });
+
+      state.charts.subscribers = new Chart(document.getElementById("subscriberChart"), {
+        type: "bar",
+        data: subscriberData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0 },
+            },
+          },
+          plugins: {
+            legend: { display: false },
+          },
+        },
+      });
+    }
+
+    function renderTable() {
+      const totalRows = state.filteredRows.length;
+      const totalPages = Math.max(1, Math.ceil(totalRows / PAGE_SIZE));
+      state.page = Math.min(state.page, totalPages);
+
+      const start = (state.page - 1) * PAGE_SIZE;
+      const pageRows = state.filteredRows.slice(start, start + PAGE_SIZE);
+
+      els.tableBody.innerHTML = "";
+
+      if (!pageRows.length) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = '<td colspan="5" class="empty-state">No channels match your filters.</td>';
+        els.tableBody.appendChild(tr);
+      } else {
+        for (const row of pageRows) {
+          const tr = document.createElement("tr");
+          const safeLink = row.link || "";
+
+          tr.innerHTML = `
+            <td>${escapeHtml(row.title || "Untitled")}</td>
+            <td>${escapeHtml(row.primaryCategory)}</td>
+            <td>${formatInt(row.subscribers)}</td>
+            <td>${
+              safeLink
+                ? `<a href="${escapeHtmlAttr(safeLink)}" target="_blank" rel="noopener noreferrer">Open channel</a>`
+                : ""
+            }</td>
+            <td class="about-cell">${escapeHtml(row.about || "")}</td>
+          `;
+          els.tableBody.appendChild(tr);
+        }
+      }
+
+      const rangeStart = totalRows === 0 ? 0 : start + 1;
+      const rangeEnd = Math.min(start + PAGE_SIZE, totalRows);
+
+      els.tableSummary.textContent = `${formatInt(totalRows)} matching channels`;
+      els.pageInfo.textContent = `Showing ${rangeStart}-${rangeEnd} · Page ${state.page} of ${totalPages}`;
+      els.prevPage.disabled = state.page <= 1;
+      els.nextPage.disabled = state.page >= totalPages;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function escapeHtmlAttr(value) {
+      return escapeHtml(value).replaceAll("`", "&#96;");
+    }
+
+    function renderAll() {
+      renderKpis();
+      renderTopChannels();
+      renderAudit();
+      renderHeatmap();
+      renderCharts();
+      renderTable();
+    }
+
+    function updateDatasetMeta() {
+      els.loadedFile.textContent = state.fileName || "No file loaded";
+      els.rowCount.textContent = `${formatInt(state.allRows.length)} channels`;
+    }
+
+    function updateFilterStateFromInputs() {
+      state.filters.search = els.searchInput.value;
+      state.filters.categories = selectedCategories();
+      state.filters.sort = els.sortBy.value;
+      syncRangeControls();
+      state.tableSort = { key: null, dir: "asc" };
+      applyFilters();
+    }
+
+    const debouncedFilterUpdate = debounce(updateFilterStateFromInputs, DEBOUNCE_MS);
+
+    function initializeData(rows, fileName) {
+      state.fileName = fileName;
+      state.allRows = rows.map(normalizeRow);
+      state.maxSubscribersInDataset = Math.max(...state.allRows.map((row) => row.subscribers), 0);
+      state.categoryOptions = [...new Set(state.allRows.map((row) => row.primaryCategory))].sort((a, b) =>
+        a.localeCompare(b)
+      );
+      setupCategoryOptions(state.categoryOptions);
+
+      els.minSubs.max = String(state.maxSubscribersInDataset);
+      els.maxSubs.max = String(state.maxSubscribersInDataset);
+      els.minSubs.value = "0";
+      els.maxSubs.value = String(state.maxSubscribersInDataset);
+      syncRangeControls();
+
+      state.filters = {
+        search: "",
+        categories: new Set(),
+        minSubscribers: 0,
+        maxSubscribers: state.maxSubscribersInDataset,
+        sort: "subscribers-desc",
+      };
+      state.tableSort = { key: null, dir: "asc" };
+      state.page = 1;
+
+      els.searchInput.value = "";
+      els.sortBy.value = "subscribers-desc";
+      updateDatasetMeta();
+      setStatus(`Loaded ${formatInt(rows.length)} channels from ${fileName}.`);
+      applyFilters();
+    }
+
+    // File loading validates enriched schema first so downstream rendering can assume required fields.
+    function handleFileSelection(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) {
+        return;
+      }
+
+      if (!window.Papa) {
+        setStatus("CSV parser failed to load. Check internet access for CDN resources.", true);
+        return;
+      }
+
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (result) => {
+          if (result.errors && result.errors.length) {
+            const detail = result.errors[0].message || "CSV parsing error.";
+            setStatus(`Unable to parse file: ${detail}`, true);
+            return;
+          }
+
+          const fields = result.meta.fields || [];
+          const missingColumns = validateColumns(fields);
+          if (missingColumns.length) {
+            setStatus(
+              `Missing required column(s): ${missingColumns.join(", ")}. Ensure this is an enriched subscriptions CSV.`,
+              true
+            );
+            return;
+          }
+
+          const dataRows = (result.data || []).filter((row) => row && String(row.channel_id || row.title || "").trim());
+          if (!dataRows.length) {
+            setStatus("The CSV appears empty after parsing. Please select a populated enriched CSV.", true);
+            return;
+          }
+
+          initializeData(dataRows, file.name);
+        },
+        error: (error) => {
+          setStatus(`Could not read file: ${error.message}`, true);
+        },
+      });
+    }
+
+    function nextPage() {
+      const totalPages = Math.max(1, Math.ceil(state.filteredRows.length / PAGE_SIZE));
+      if (state.page < totalPages) {
+        state.page += 1;
+        renderTable();
+      }
+    }
+
+    function prevPage() {
+      if (state.page > 1) {
+        state.page -= 1;
+        renderTable();
+      }
+    }
+
+    function handleTableSort(event) {
+      const button = event.target.closest("button[data-sort]");
+      if (!button) {
+        return;
+      }
+
+      const key = button.getAttribute("data-sort");
+      if (!key) {
+        return;
+      }
+
+      if (state.tableSort.key === key) {
+        state.tableSort.dir = state.tableSort.dir === "asc" ? "desc" : "asc";
+      } else {
+        state.tableSort = { key, dir: "asc" };
+      }
+      sortFilteredRows();
+      state.page = 1;
+      renderTable();
+    }
+
+    function wireEvents() {
+      els.csvInput.addEventListener("change", handleFileSelection);
+      els.searchInput.addEventListener("input", debouncedFilterUpdate);
+      els.categoryFilter.addEventListener("change", updateFilterStateFromInputs);
+      els.sortBy.addEventListener("change", updateFilterStateFromInputs);
+      els.minSubs.addEventListener("input", debouncedFilterUpdate);
+      els.maxSubs.addEventListener("input", debouncedFilterUpdate);
+      els.resetFilters.addEventListener("click", resetFilters);
+      els.prevPage.addEventListener("click", prevPage);
+      els.nextPage.addEventListener("click", nextPage);
+      document.querySelector("thead").addEventListener("click", handleTableSort);
+    }
+
+    wireEvents();
+  </script>
+</body>
+</html>

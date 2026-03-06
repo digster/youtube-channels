@@ -17,3 +17,9 @@ the api key is not getting picked up from the .env file
 
 ### Prompt 4
 got this error.
+
+### Prompt 5
+create a single html file dashboard for exploring the enriched subscriptions.
+
+### Prompt 6
+Implement the plan.

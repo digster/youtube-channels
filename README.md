@@ -1,6 +1,7 @@
 # YouTube Channel CSV Enricher
 
 This project enriches a YouTube subscriptions CSV with extra channel metadata.
+It also includes a standalone browser dashboard for exploring enriched CSV output.
 
 ## Input
 
@@ -65,3 +66,49 @@ If a channel's uploads playlist cannot be fetched (`playlistItems` returns `404`
 ```bash
 uv run python -m unittest discover -s tests -p "test_*.py"
 ```
+
+## Dashboard
+
+`dashboard.html` is a single-file local dashboard for exploring enriched subscription exports.
+
+### Features
+
+- File-picker based CSV loading (no backend required).
+- Search, category filtering, subscriber range controls, and sorting.
+- KPI cards for filtered channel count, median subscribers, max subscribers, and category count.
+- Category distribution chart and subscriber distribution chart.
+- Insight panels for top channels, missing data audit, and category-vs-subscriber-tier heatmap.
+- Paginated channel table with safe external links.
+
+### Run
+
+Open the file directly in a modern browser:
+
+```bash
+open dashboard.html
+```
+
+Then choose an enriched CSV file such as `subscriptions_2026-03-05.enriched.csv`.
+
+### Required Columns
+
+The dashboard expects these headers in the loaded CSV:
+
+- `channel_id`
+- `title`
+- `description`
+- `thumbnail_url`
+- `subscribed_at`
+- `link`
+- `subscribers`
+- `subscribers_readable`
+- `about`
+- `category`
+
+### Manual Verification Checklist
+
+- Load a valid `.enriched.csv` file and confirm row count plus loaded-file metadata update.
+- Apply search + category + subscriber-range filters and confirm table/charts/KPIs stay in sync.
+- Change sort and verify ordering in the table.
+- Open a channel link from table rows and confirm it opens in a new tab.
+- Resize to mobile width and confirm controls/table remain usable.
