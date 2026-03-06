@@ -42,10 +42,9 @@
       grid-template-columns: 1.7fr 1fr;
       grid-template-areas:
         "hero hero"
-        "filters filters"
         "kpis kpis"
-        "charts insights"
-        "table table";
+        "table table"
+        "charts insights";
     }
 
     .panel {
@@ -133,94 +132,13 @@
       color: rgba(249, 245, 236, 0.95);
     }
 
-    .filters {
-      grid-area: filters;
-      padding: 1rem;
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 0.8rem;
-      align-items: end;
-    }
-
-    .field {
-      display: grid;
-      gap: 0.3rem;
-      min-width: 0;
-    }
-
-    .field label {
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      color: var(--muted);
-      text-transform: uppercase;
-    }
-
-    .field input,
-    .field select,
-    .field button {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 0.55rem 0.7rem;
-      background: #fff;
-      color: var(--ink);
-      font: inherit;
-      min-width: 0;
-    }
-
-    .field input:focus-visible,
-    .field select:focus-visible,
-    .field button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    button:focus-visible,
     a:focus-visible,
     summary:focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
-    }
-
-    .field.search {
-      grid-column: span 4;
-    }
-
-    .field.category {
-      grid-column: span 3;
-    }
-
-    .field.sort {
-      grid-column: span 2;
-    }
-
-    .range-group {
-      grid-column: span 2;
-      display: grid;
-      gap: 0.35rem;
-    }
-
-    .range-label {
-      display: flex;
-      justify-content: space-between;
-      gap: 0.5rem;
-      font-size: 0.78rem;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--accent);
-      padding: 0;
-      border: none;
-      background: transparent;
-    }
-
-    .field.reset {
-      grid-column: span 1;
-    }
-
-    .field.reset button {
-      background: var(--accent-soft);
-      border-color: #b7d8d6;
-      font-weight: 700;
-      cursor: pointer;
     }
 
     .kpis {
@@ -395,11 +313,15 @@
     .table-header {
       padding: 0.9rem 1rem 0.6rem;
       border-bottom: 1px solid var(--border);
+    }
+
+    .table-header-main {
       display: flex;
       justify-content: space-between;
-      gap: 0.8rem;
-      align-items: baseline;
+      gap: 0.9rem;
+      align-items: end;
       flex-wrap: wrap;
+      width: 100%;
     }
 
     .table-header h2 {
@@ -415,9 +337,34 @@
       color: var(--muted);
     }
 
+    .table-search {
+      display: grid;
+      gap: 0.3rem;
+      min-width: min(320px, 100%);
+    }
+
+    .table-search label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .table-search input {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.55rem 0.7rem;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      min-width: 0;
+    }
+
     .table-wrap {
       overflow: auto;
-      max-height: 440px;
+      /* Keep the table viewport stable while search/pagination re-render table rows. */
+      height: 620px;
     }
 
     table {
@@ -472,10 +419,33 @@
       color: var(--muted);
     }
 
+    .pagination-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .pagination-meta select {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      padding: 0.32rem 0.45rem;
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.8rem;
+      text-transform: none;
+    }
+
     .pagination-controls {
       display: flex;
       gap: 0.35rem;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .pagination-controls button {
@@ -489,9 +459,31 @@
       font-size: 0.83rem;
     }
 
+    .page-numbers {
+      display: inline-flex;
+      gap: 0.35rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .page-numbers button[aria-current="page"] {
+      background: var(--accent);
+      border-color: #0f5552;
+      color: #fff;
+      font-weight: 700;
+    }
+
     .pagination-controls button:disabled {
       cursor: not-allowed;
       opacity: 0.45;
+    }
+
+    .table-search input:focus-visible,
+    .pagination-meta select:focus-visible,
+    .pagination-controls button:focus-visible,
+    .page-numbers button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
 
     .status {
@@ -540,23 +532,10 @@
         grid-template-columns: 1fr;
         grid-template-areas:
           "hero"
-          "filters"
           "kpis"
+          "table"
           "charts"
-          "insights"
-          "table";
-      }
-
-      .filters {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .field.search,
-      .field.category,
-      .field.sort,
-      .range-group,
-      .field.reset {
-        grid-column: auto;
+          "insights";
       }
 
       .kpis {
@@ -575,7 +554,6 @@
       }
 
       .hero,
-      .filters,
       .charts,
       .insights {
         padding: 0.75rem;
@@ -586,11 +564,15 @@
       }
 
       .table-wrap {
-        max-height: 360px;
+        height: 460px;
       }
 
       .pagination {
         padding: 0.65rem 0.75rem;
+      }
+
+      .table-search {
+        width: 100%;
       }
     }
   </style>
@@ -604,7 +586,7 @@
       <p class="eyebrow">YouTube Subscriptions Explorer</p>
       <h1>Enriched Subscriptions Dashboard</h1>
       <p class="hero-subtitle">
-        Load an enriched subscriptions CSV and explore channels with filtering, category analytics,
+        Load an enriched subscriptions CSV and explore channels with fast search, ranking, category analytics,
         subscriber distributions, and audit panels for data quality.
       </p>
       <div class="hero-controls">
@@ -616,50 +598,6 @@
         <div class="meta-chip" id="rowCount">0 channels</div>
       </div>
       <div id="status" class="status ok" role="status">Choose an enriched CSV file to begin.</div>
-    </section>
-
-    <section class="panel filters fade-in" aria-label="Filtering controls">
-      <div class="field search">
-        <label for="searchInput">Search title and about</label>
-        <input id="searchInput" type="search" placeholder="e.g. design, AI, tutorials" />
-      </div>
-
-      <div class="field category">
-        <label for="categoryFilter">Primary category</label>
-        <select id="categoryFilter" multiple size="3" aria-label="Filter by category"></select>
-      </div>
-
-      <div class="field sort">
-        <label for="sortBy">Sort</label>
-        <select id="sortBy" aria-label="Sort rows">
-          <option value="subscribers-desc">Subscribers (high to low)</option>
-          <option value="subscribers-asc">Subscribers (low to high)</option>
-          <option value="title-asc">Title (A to Z)</option>
-          <option value="title-desc">Title (Z to A)</option>
-          <option value="category-asc">Category (A to Z)</option>
-        </select>
-      </div>
-
-      <div class="range-group">
-        <div class="range-label">
-          <span>Min Subscribers</span>
-          <span id="minSubsLabel">0</span>
-        </div>
-        <input id="minSubs" type="range" min="0" max="100" value="0" step="1" aria-label="Minimum subscribers" />
-      </div>
-
-      <div class="range-group">
-        <div class="range-label">
-          <span>Max Subscribers</span>
-          <span id="maxSubsLabel">0</span>
-        </div>
-        <input id="maxSubs" type="range" min="0" max="100" value="100" step="1" aria-label="Maximum subscribers" />
-      </div>
-
-      <div class="field reset">
-        <label for="resetFilters">Actions</label>
-        <button id="resetFilters" type="button">Reset</button>
-      </div>
     </section>
 
     <section class="kpis fade-in" aria-label="Summary metrics">
@@ -679,6 +617,56 @@
         <p class="label">Primary Categories</p>
         <p class="value" id="kpiCategories">0</p>
       </article>
+    </section>
+
+    <section class="panel table-panel fade-in" aria-label="Channel table">
+      <div class="table-header">
+        <div class="table-header-main">
+          <div>
+            <h2>Channels</h2>
+            <p class="table-note" id="tableSummary">Load a file to show results.</p>
+          </div>
+          <div class="table-search">
+            <label for="tableSearchInput">Search title and about</label>
+            <input id="tableSearchInput" type="search" placeholder="e.g. design, AI, tutorials" />
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><button type="button" data-sort="title">Title</button></th>
+              <th><button type="button" data-sort="category">Primary Category</button></th>
+              <th><button type="button" data-sort="subscribers">Subscribers</button></th>
+              <th>Channel Link</th>
+              <th>About</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="5" class="empty-state">No data loaded.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <div class="pagination-meta">
+          <label for="pageSize">Rows per page</label>
+          <select id="pageSize" aria-label="Rows per page">
+            <option value="10">10</option>
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+        <div id="pageInfo">Page 0 of 0</div>
+        <div class="pagination-controls">
+          <button type="button" id="firstPage" disabled>First</button>
+          <button type="button" id="prevPage" disabled>Previous</button>
+          <div id="pageNumbers" class="page-numbers" aria-label="Page numbers"></div>
+          <button type="button" id="nextPage" disabled>Next</button>
+          <button type="button" id="lastPage" disabled>Last</button>
+        </div>
+      </div>
     </section>
 
     <section class="panel charts fade-in" aria-label="Charts">
@@ -708,38 +696,6 @@
         <div id="heatmap" class="heatmap" role="table" aria-label="Category and subscriber tier heatmap"></div>
       </section>
     </aside>
-
-    <section class="panel table-panel fade-in" aria-label="Channel table">
-      <div class="table-header">
-        <div>
-          <h2>Channels</h2>
-          <p class="table-note" id="tableSummary">Load a file to show results.</p>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th><button type="button" data-sort="title">Title</button></th>
-              <th><button type="button" data-sort="category">Primary Category</button></th>
-              <th><button type="button" data-sort="subscribers">Subscribers</button></th>
-              <th>Channel Link</th>
-              <th>About</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-            <tr><td colspan="5" class="empty-state">No data loaded.</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="pagination">
-        <div id="pageInfo">Page 0 of 0</div>
-        <div class="pagination-controls">
-          <button type="button" id="prevPage" disabled>Previous</button>
-          <button type="button" id="nextPage" disabled>Next</button>
-        </div>
-      </div>
-    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js" defer></script>
@@ -758,7 +714,9 @@
       "category",
     ];
 
-    const PAGE_SIZE = 25;
+    const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+    const DEFAULT_PAGE_SIZE = 25;
+    const DEFAULT_SORT = "subscribers-desc";
     const DEBOUNCE_MS = 180;
     const SUBSCRIBER_TIERS = [
       { label: "<10K", min: 0, max: 9_999 },
@@ -773,14 +731,7 @@
       loadedFile: document.getElementById("loadedFile"),
       rowCount: document.getElementById("rowCount"),
       status: document.getElementById("status"),
-      searchInput: document.getElementById("searchInput"),
-      categoryFilter: document.getElementById("categoryFilter"),
-      sortBy: document.getElementById("sortBy"),
-      minSubs: document.getElementById("minSubs"),
-      maxSubs: document.getElementById("maxSubs"),
-      minSubsLabel: document.getElementById("minSubsLabel"),
-      maxSubsLabel: document.getElementById("maxSubsLabel"),
-      resetFilters: document.getElementById("resetFilters"),
+      tableSearchInput: document.getElementById("tableSearchInput"),
       kpiFiltered: document.getElementById("kpiFiltered"),
       kpiMedian: document.getElementById("kpiMedian"),
       kpiMax: document.getElementById("kpiMax"),
@@ -791,8 +742,12 @@
       tableBody: document.getElementById("tableBody"),
       tableSummary: document.getElementById("tableSummary"),
       pageInfo: document.getElementById("pageInfo"),
+      pageSize: document.getElementById("pageSize"),
+      firstPage: document.getElementById("firstPage"),
       prevPage: document.getElementById("prevPage"),
+      pageNumbers: document.getElementById("pageNumbers"),
       nextPage: document.getElementById("nextPage"),
+      lastPage: document.getElementById("lastPage"),
     };
 
     // Global state is intentionally centralized so every view (KPIs/charts/table)
@@ -800,17 +755,15 @@
     const state = {
       allRows: [],
       filteredRows: [],
-      categoryOptions: [],
       fileName: "",
-      maxSubscribersInDataset: 0,
+      // Top-row filters were intentionally removed; search now drives filtering.
       filters: {
         search: "",
-        categories: new Set(),
-        minSubscribers: 0,
-        maxSubscribers: 0,
-        sort: "subscribers-desc",
       },
-      page: 1,
+      pagination: {
+        page: 1,
+        pageSize: DEFAULT_PAGE_SIZE,
+      },
       tableSort: {
         key: null,
         dir: "asc",
@@ -875,10 +828,6 @@
       return sortedValues[index] || 0;
     }
 
-    function formatRangeLabel(value) {
-      return Number(value).toLocaleString("en-US");
-    }
-
     function logBins(values) {
       const bins = [
         { label: "0-999", min: 0, max: 999, count: 0 },
@@ -901,16 +850,6 @@
     function setStatus(message, isError = false) {
       els.status.textContent = message;
       els.status.className = isError ? "status error" : "status ok";
-    }
-
-    function setupCategoryOptions(options) {
-      els.categoryFilter.innerHTML = "";
-      for (const category of options) {
-        const option = document.createElement("option");
-        option.value = category;
-        option.textContent = category;
-        els.categoryFilter.appendChild(option);
-      }
     }
 
     // Normalize each CSV row once up-front to avoid repeated parsing work during filtering.
@@ -941,41 +880,12 @@
       return missing;
     }
 
-    function syncRangeControls() {
-      const minValue = Number(els.minSubs.value);
-      const maxValue = Number(els.maxSubs.value);
-
-      if (minValue > maxValue) {
-        if (document.activeElement === els.minSubs) {
-          els.maxSubs.value = String(minValue);
-        } else {
-          els.minSubs.value = String(maxValue);
-        }
-      }
-
-      state.filters.minSubscribers = Number(els.minSubs.value);
-      state.filters.maxSubscribers = Number(els.maxSubs.value);
-      els.minSubsLabel.textContent = formatRangeLabel(state.filters.minSubscribers);
-      els.maxSubsLabel.textContent = formatRangeLabel(state.filters.maxSubscribers);
-    }
-
     // Filtering is the main derivation step: all visual components consume filteredRows.
     function applyFilters() {
       const search = state.filters.search.trim().toLowerCase();
-      const categorySet = state.filters.categories;
-      const minSubscribers = state.filters.minSubscribers;
-      const maxSubscribers = state.filters.maxSubscribers;
 
       state.filteredRows = state.allRows.filter((row) => {
         if (search && !row.searchBlob.includes(search)) {
-          return false;
-        }
-
-        if (categorySet.size && !categorySet.has(row.primaryCategory)) {
-          return false;
-        }
-
-        if (row.subscribers < minSubscribers || row.subscribers > maxSubscribers) {
           return false;
         }
 
@@ -983,14 +893,14 @@
       });
 
       sortFilteredRows();
-      state.page = 1;
+      state.pagination.page = 1;
       renderAll();
     }
 
     function sortFilteredRows() {
       const sortValue = state.tableSort.key
         ? `${state.tableSort.key}-${state.tableSort.dir}`
-        : state.filters.sort;
+        : DEFAULT_SORT;
 
       const [field, direction] = sortValue.split("-");
       const sign = direction === "desc" ? -1 : 1;
@@ -1006,28 +916,6 @@
 
         return a.title.localeCompare(b.title) * sign;
       });
-    }
-
-    function selectedCategories() {
-      return new Set(Array.from(els.categoryFilter.selectedOptions).map((option) => option.value));
-    }
-
-    function resetFilters() {
-      state.filters.search = "";
-      state.filters.categories = new Set();
-      state.filters.sort = "subscribers-desc";
-      state.tableSort = { key: null, dir: "asc" };
-
-      els.searchInput.value = "";
-      els.sortBy.value = "subscribers-desc";
-      for (const option of els.categoryFilter.options) {
-        option.selected = false;
-      }
-
-      els.minSubs.value = "0";
-      els.maxSubs.value = String(state.maxSubscribersInDataset);
-      syncRangeControls();
-      applyFilters();
     }
 
     function renderKpis() {
@@ -1275,19 +1163,46 @@
       });
     }
 
+    function getTotalPages() {
+      return Math.max(1, Math.ceil(state.filteredRows.length / state.pagination.pageSize));
+    }
+
+    // Keep numeric page buttons compact on wide datasets to avoid overwhelming the table footer.
+    function renderPageNumbers(totalPages) {
+      const maxButtons = 7;
+      const halfWindow = Math.floor(maxButtons / 2);
+      let startPage = Math.max(1, state.pagination.page - halfWindow);
+      let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+      startPage = Math.max(1, endPage - maxButtons + 1);
+
+      els.pageNumbers.innerHTML = "";
+      for (let page = startPage; page <= endPage; page += 1) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = String(page);
+        if (page === state.pagination.page) {
+          button.setAttribute("aria-current", "page");
+          button.disabled = true;
+        }
+        button.addEventListener("click", () => setPage(page));
+        els.pageNumbers.appendChild(button);
+      }
+    }
+
     function renderTable() {
       const totalRows = state.filteredRows.length;
-      const totalPages = Math.max(1, Math.ceil(totalRows / PAGE_SIZE));
-      state.page = Math.min(state.page, totalPages);
+      const pageSize = state.pagination.pageSize;
+      const totalPages = getTotalPages();
+      state.pagination.page = Math.min(state.pagination.page, totalPages);
 
-      const start = (state.page - 1) * PAGE_SIZE;
-      const pageRows = state.filteredRows.slice(start, start + PAGE_SIZE);
+      const start = (state.pagination.page - 1) * pageSize;
+      const pageRows = state.filteredRows.slice(start, start + pageSize);
 
       els.tableBody.innerHTML = "";
 
       if (!pageRows.length) {
         const tr = document.createElement("tr");
-        tr.innerHTML = '<td colspan="5" class="empty-state">No channels match your filters.</td>';
+        tr.innerHTML = '<td colspan="5" class="empty-state">No channels match your search.</td>';
         els.tableBody.appendChild(tr);
       } else {
         for (const row of pageRows) {
@@ -1310,12 +1225,15 @@
       }
 
       const rangeStart = totalRows === 0 ? 0 : start + 1;
-      const rangeEnd = Math.min(start + PAGE_SIZE, totalRows);
+      const rangeEnd = Math.min(start + pageSize, totalRows);
 
       els.tableSummary.textContent = `${formatInt(totalRows)} matching channels`;
-      els.pageInfo.textContent = `Showing ${rangeStart}-${rangeEnd} · Page ${state.page} of ${totalPages}`;
-      els.prevPage.disabled = state.page <= 1;
-      els.nextPage.disabled = state.page >= totalPages;
+      els.pageInfo.textContent = `Showing ${rangeStart}-${rangeEnd} · Page ${state.pagination.page} of ${totalPages}`;
+      els.firstPage.disabled = state.pagination.page <= 1;
+      els.prevPage.disabled = state.pagination.page <= 1;
+      els.nextPage.disabled = state.pagination.page >= totalPages;
+      els.lastPage.disabled = state.pagination.page >= totalPages;
+      renderPageNumbers(totalPages);
     }
 
     function escapeHtml(value) {
@@ -1346,11 +1264,7 @@
     }
 
     function updateFilterStateFromInputs() {
-      state.filters.search = els.searchInput.value;
-      state.filters.categories = selectedCategories();
-      state.filters.sort = els.sortBy.value;
-      syncRangeControls();
-      state.tableSort = { key: null, dir: "asc" };
+      state.filters.search = els.tableSearchInput.value;
       applyFilters();
     }
 
@@ -1359,30 +1273,18 @@
     function initializeData(rows, fileName) {
       state.fileName = fileName;
       state.allRows = rows.map(normalizeRow);
-      state.maxSubscribersInDataset = Math.max(...state.allRows.map((row) => row.subscribers), 0);
-      state.categoryOptions = [...new Set(state.allRows.map((row) => row.primaryCategory))].sort((a, b) =>
-        a.localeCompare(b)
-      );
-      setupCategoryOptions(state.categoryOptions);
-
-      els.minSubs.max = String(state.maxSubscribersInDataset);
-      els.maxSubs.max = String(state.maxSubscribersInDataset);
-      els.minSubs.value = "0";
-      els.maxSubs.value = String(state.maxSubscribersInDataset);
-      syncRangeControls();
 
       state.filters = {
         search: "",
-        categories: new Set(),
-        minSubscribers: 0,
-        maxSubscribers: state.maxSubscribersInDataset,
-        sort: "subscribers-desc",
       };
       state.tableSort = { key: null, dir: "asc" };
-      state.page = 1;
+      state.pagination = {
+        page: 1,
+        pageSize: DEFAULT_PAGE_SIZE,
+      };
+      els.pageSize.value = String(DEFAULT_PAGE_SIZE);
 
-      els.searchInput.value = "";
-      els.sortBy.value = "subscribers-desc";
+      els.tableSearchInput.value = "";
       updateDatasetMeta();
       setStatus(`Loaded ${formatInt(rows.length)} channels from ${fileName}.`);
       applyFilters();
@@ -1434,19 +1336,34 @@
       });
     }
 
-    function nextPage() {
-      const totalPages = Math.max(1, Math.ceil(state.filteredRows.length / PAGE_SIZE));
-      if (state.page < totalPages) {
-        state.page += 1;
-        renderTable();
-      }
+    function setPage(page) {
+      const totalPages = getTotalPages();
+      state.pagination.page = Math.min(Math.max(page, 1), totalPages);
+      renderTable();
+    }
+
+    function handlePageSizeChange() {
+      const selected = Number.parseInt(els.pageSize.value, 10);
+      const pageSize = PAGE_SIZE_OPTIONS.includes(selected) ? selected : DEFAULT_PAGE_SIZE;
+      state.pagination.pageSize = pageSize;
+      state.pagination.page = 1;
+      renderTable();
+    }
+
+    function firstPage() {
+      setPage(1);
     }
 
     function prevPage() {
-      if (state.page > 1) {
-        state.page -= 1;
-        renderTable();
-      }
+      setPage(state.pagination.page - 1);
+    }
+
+    function nextPage() {
+      setPage(state.pagination.page + 1);
+    }
+
+    function lastPage() {
+      setPage(getTotalPages());
     }
 
     function handleTableSort(event) {
@@ -1466,20 +1383,18 @@
         state.tableSort = { key, dir: "asc" };
       }
       sortFilteredRows();
-      state.page = 1;
+      state.pagination.page = 1;
       renderTable();
     }
 
     function wireEvents() {
       els.csvInput.addEventListener("change", handleFileSelection);
-      els.searchInput.addEventListener("input", debouncedFilterUpdate);
-      els.categoryFilter.addEventListener("change", updateFilterStateFromInputs);
-      els.sortBy.addEventListener("change", updateFilterStateFromInputs);
-      els.minSubs.addEventListener("input", debouncedFilterUpdate);
-      els.maxSubs.addEventListener("input", debouncedFilterUpdate);
-      els.resetFilters.addEventListener("click", resetFilters);
+      els.tableSearchInput.addEventListener("input", debouncedFilterUpdate);
+      els.pageSize.addEventListener("change", handlePageSizeChange);
+      els.firstPage.addEventListener("click", firstPage);
       els.prevPage.addEventListener("click", prevPage);
       els.nextPage.addEventListener("click", nextPage);
+      els.lastPage.addEventListener("click", lastPage);
       document.querySelector("thead").addEventListener("click", handleTableSort);
     }
 

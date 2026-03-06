@@ -74,11 +74,12 @@ uv run python -m unittest discover -s tests -p "test_*.py"
 ### Features
 
 - File-picker based CSV loading (no backend required).
-- Search, category filtering, subscriber range controls, and sorting.
+- Table-adjacent search and table-header sorting.
 - KPI cards for filtered channel count, median subscribers, max subscribers, and category count.
 - Category distribution chart and subscriber distribution chart with compact large-number labels.
 - Insight panels for top channels, missing data audit, and category-vs-subscriber-tier heatmap.
-- Paginated channel table with safe external links.
+- Larger fixed-height channel table (to reduce layout jumps while filtering) shown above charts.
+- Paginated channel table with rows-per-page options, first/previous/next/last navigation, numeric page buttons, and safe external links.
 
 ### Run
 
@@ -108,7 +109,10 @@ The dashboard expects these headers in the loaded CSV:
 ### Manual Verification Checklist
 
 - Load a valid `.enriched.csv` file and confirm row count plus loaded-file metadata update.
-- Apply search + category + subscriber-range filters and confirm table/charts/KPIs stay in sync.
-- Change sort and verify ordering in the table.
+- Confirm the top filter row is removed and the table appears above charts.
+- Apply table search and confirm table/charts/KPIs stay in sync.
+- Change table-header sort and verify ordering in the table.
+- Confirm the table viewport keeps a fixed height while result counts change.
+- Change rows-per-page and navigate via first/previous/next/last plus numeric page buttons.
 - Open a channel link from table rows and confirm it opens in a new tab.
 - Resize to mobile width and confirm controls/table remain usable.

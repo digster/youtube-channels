@@ -31,12 +31,12 @@ Dashboard entrypoint:
 1. User loads an enriched CSV through the file input in `dashboard.html`.
 2. PapaParse parses rows client-side with header validation.
 3. Rows are normalized into a derived in-memory model (`primaryCategory`, numeric subscribers, search index text).
-4. Filter state (search/category/range/sort) produces a filtered view.
+4. Search state (`tableSearchInput`) produces a filtered view.
 5. Filtered view drives:
    - KPI cards
    - category and subscriber distribution charts (Chart.js)
    - top channels, missing-data audit, and category-tier heatmap
-   - paginated data table
+   - a fixed-height paginated data table with configurable page size and full pager controls
 
 ## Key Components
 
@@ -49,7 +49,7 @@ Dashboard entrypoint:
 - `enrich_rows`: central orchestration function used by CLI and tests.
 - Dashboard modules (inline in `dashboard.html`):
   - CSV validation/normalization
-  - filter/sort/pagination state management
+  - search/sort/pagination state management (table-adjacent search input, table-header sort, rows-per-page selection)
   - chart rendering + insight panel rendering
   - table rendering with escaped HTML output
 

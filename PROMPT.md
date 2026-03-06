@@ -32,3 +32,21 @@ Also, remember that some of the numbers plotted on the chart like subscriber cou
 
 ### Prompt 9
 Implement the plan.
+
+### Prompt 10
+add pagination options for the table.
+
+### Prompt 11
+add a search near the table.
+
+### Prompt 12
+Implement the plan.
+
+### Prompt 13
+work on the following changes -
+- remove all the search filters from the row at the top
+- move the table above the charts
+- increase the height of the table
+
+### Prompt 14
+Implement the plan.
