@@ -49,6 +49,15 @@ class TestDashboardHtml(unittest.TestCase):
         self.assertIn("papaparse", self.contents.lower())
         self.assertIn("chart.umd.min.js", self.contents)
 
+    def test_charts_use_compact_number_formatting(self):
+        self.assertIn("formatCompactNumber", self.contents)
+        self.assertIn("notation: \"compact\"", self.contents)
+        self.assertIn("maxBarThickness", self.contents)
+
+    def test_canvas_height_is_css_driven(self):
+        self.assertNotIn('id=\"categoryChart\" height=', self.contents)
+        self.assertNotIn('id=\"subscriberChart\" height=', self.contents)
+
 
 if __name__ == "__main__":
     unittest.main()

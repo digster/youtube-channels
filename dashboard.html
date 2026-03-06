@@ -267,6 +267,16 @@
       border-radius: 12px;
       padding: 0.75rem;
       background: #fff;
+      height: clamp(190px, 26vh, 250px);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-height: 0;
+    }
+
+    .chart-wrap canvas {
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 0;
     }
 
     .chart-title {
@@ -674,11 +684,11 @@
     <section class="panel charts fade-in" aria-label="Charts">
       <article class="chart-wrap">
         <p class="chart-title">Top Primary Categories</p>
-        <canvas id="categoryChart" height="220" aria-label="Category distribution chart" role="img"></canvas>
+        <canvas id="categoryChart" aria-label="Category distribution chart" role="img"></canvas>
       </article>
       <article class="chart-wrap">
         <p class="chart-title">Subscriber Distribution (Log Buckets)</p>
-        <canvas id="subscriberChart" height="220" aria-label="Subscriber distribution chart" role="img"></canvas>
+        <canvas id="subscriberChart" aria-label="Subscriber distribution chart" role="img"></canvas>
       </article>
     </section>
 
@@ -847,6 +857,14 @@
 
     function formatInt(value) {
       return Number(value || 0).toLocaleString("en-US");
+    }
+
+    // Compact notation keeps large magnitudes (thousands/millions/billions) readable on chart axes.
+    function formatCompactNumber(value) {
+      return new Intl.NumberFormat("en-US", {
+        notation: "compact",
+        maximumFractionDigits: 1,
+      }).format(Number(value || 0));
     }
 
     function percentile(sortedValues, p) {
@@ -1167,6 +1185,9 @@
             backgroundColor: "rgba(15, 95, 92, 0.72)",
             borderColor: "rgba(10, 68, 66, 0.95)",
             borderWidth: 1,
+            categoryPercentage: 0.64,
+            barPercentage: 0.7,
+            maxBarThickness: 26,
           },
         ],
       };
@@ -1181,6 +1202,9 @@
             backgroundColor: "rgba(179, 92, 46, 0.62)",
             borderColor: "rgba(128, 66, 32, 0.92)",
             borderWidth: 1,
+            categoryPercentage: 0.64,
+            barPercentage: 0.72,
+            maxBarThickness: 26,
           },
         ],
       };
@@ -1201,11 +1225,22 @@
           scales: {
             y: {
               beginAtZero: true,
-              ticks: { precision: 0 },
+              ticks: {
+                precision: 0,
+                callback: (value) => formatCompactNumber(value),
+              },
             },
           },
           plugins: {
             legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (context) =>
+                  `${context.dataset.label}: ${formatCompactNumber(context.parsed.y)} (${formatInt(
+                    context.parsed.y
+                  )})`,
+              },
+            },
           },
         },
       });
@@ -1219,11 +1254,22 @@
           scales: {
             y: {
               beginAtZero: true,
-              ticks: { precision: 0 },
+              ticks: {
+                precision: 0,
+                callback: (value) => formatCompactNumber(value),
+              },
             },
           },
           plugins: {
             legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (context) =>
+                  `${context.dataset.label}: ${formatCompactNumber(context.parsed.y)} (${formatInt(
+                    context.parsed.y
+                  )})`,
+              },
+            },
           },
         },
       });

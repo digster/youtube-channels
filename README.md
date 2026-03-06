@@ -76,7 +76,7 @@ uv run python -m unittest discover -s tests -p "test_*.py"
 - File-picker based CSV loading (no backend required).
 - Search, category filtering, subscriber range controls, and sorting.
 - KPI cards for filtered channel count, median subscribers, max subscribers, and category count.
-- Category distribution chart and subscriber distribution chart.
+- Category distribution chart and subscriber distribution chart with compact large-number labels.
 - Insight panels for top channels, missing data audit, and category-vs-subscriber-tier heatmap.
 - Paginated channel table with safe external links.
 

@@ -23,3 +23,12 @@ create a single html file dashboard for exploring the enriched subscriptions.
 
 ### Prompt 6
 Implement the plan.
+
+### Prompt 7
+the chart bars are too large in height, scale them properly.
+
+### Prompt 8
+Also, remember that some of the numbers plotted on the chart like subscriber counts are in millions that could also be an issue.
+
+### Prompt 9
+Implement the plan.
