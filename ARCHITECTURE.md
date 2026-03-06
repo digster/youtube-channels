@@ -36,6 +36,7 @@ Primary entrypoint:
 - API key is read from `YOUTUBE_API_KEY` by default (configurable via `--api-key-env`).
 - Before key lookup, the script loads dotenv entries from local `.env` (non-overriding), so shell exports still take precedence.
 - The script sleeps between API calls (`--sleep-ms`) to reduce rate-limit risk.
+- Missing uploads playlists from `playlistItems.list` (HTTP 404) are treated as a per-channel data gap, logged at warning level, and do not fail the full run.
 - Output defaults to `<input>.enriched.csv` to avoid mutating original data.
 
 ## Testing Workflow

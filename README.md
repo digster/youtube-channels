@@ -58,6 +58,8 @@ Useful options:
 - `--retries` (default: `2`)
 - `--log-level` (`DEBUG|INFO|WARNING|ERROR`)
 
+If a channel's uploads playlist cannot be fetched (`playlistItems` returns `404`), the script logs a warning and continues without recent titles for that channel.
+
 ## Tests
 
 ```bash

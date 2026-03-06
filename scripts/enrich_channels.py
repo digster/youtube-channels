@@ -221,6 +221,21 @@ class YouTubeClient:
                     body = error.read().decode("utf-8", errors="ignore")
                 except Exception:
                     body = ""
+                lowered_body = body.lower()
+
+                if (
+                    path == "playlistItems"
+                    and error.code == 404
+                    and query_params.get("playlistId")
+                ):
+                    # Some channels expose an uploads playlist id that later becomes
+                    # unavailable (deleted/private/inconsistent). This should not halt
+                    # the full CSV enrichment run, so treat it as "no recent uploads".
+                    logging.warning(
+                        "Uploads playlist %s was not found (404); continuing without recent titles.",
+                        query_params["playlistId"],
+                    )
+                    return {"items": []}
 
                 if error.code in TRANSIENT_HTTP_CODES and attempt <= self.retries:
                     backoff = self.sleep_seconds * attempt
@@ -235,7 +250,7 @@ class YouTubeClient:
                     time.sleep(backoff)
                     continue
 
-                if error.code == 403 and "quota" in body.lower():
+                if error.code == 403 and "quota" in lowered_body:
                     raise RuntimeError(
                         "YouTube API quota exceeded. Try again after quota reset."
                     ) from error

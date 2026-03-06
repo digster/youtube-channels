@@ -1,11 +1,14 @@
 import argparse
+import io
 import os
 from pathlib import Path
 import tempfile
 import unittest
+from urllib.error import HTTPError
 from unittest.mock import patch
 
 from scripts.enrich_channels import (
+    YouTubeClient,
     build_about_summary,
     enrich_rows,
     format_subscribers,
@@ -24,6 +27,33 @@ class FakeClient:
 
     def fetch_recent_titles(self, uploads_playlist_id, max_videos):
         return self.uploads.get(uploads_playlist_id, [])[:max_videos]
+
+
+class TestYouTubeClient(unittest.TestCase):
+    def test_fetch_recent_titles_handles_missing_uploads_playlist(self):
+        body = (
+            b'{"error":{"code":404,"message":"The playlist identified with the request\'s '
+            b'playlistId parameter cannot be found.","errors":[{"reason":"playlistNotFound"}]}}'
+        )
+        error = HTTPError(
+            url="https://www.googleapis.com/youtube/v3/playlistItems?playlistId=UUmissing",
+            code=404,
+            msg="Not Found",
+            hdrs=None,
+            fp=io.BytesIO(body),
+        )
+        client = YouTubeClient(
+            api_key="token",
+            retries=0,
+            timeout_seconds=1,
+            sleep_seconds=0,
+        )
+
+        with patch("scripts.enrich_channels.urlopen", side_effect=error):
+            self.assertEqual(
+                client.fetch_recent_titles("UUmissing", 3),
+                [],
+            )
 
 
 class TestFormatting(unittest.TestCase):
