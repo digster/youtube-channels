@@ -34,7 +34,13 @@ Set your YouTube Data API key:
 export YOUTUBE_API_KEY="your_key_here"
 ```
 
-You can also place it in a local `.env` and export it in your shell before running.
+You can also place it in a local `.env` file as:
+
+```bash
+YOUTUBE_API_KEY="your_key_here"
+```
+
+The script automatically loads `.env` from the current working directory and uses it when the variable is not already exported in the shell.
 
 ## Run
 

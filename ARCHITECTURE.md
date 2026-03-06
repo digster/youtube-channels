@@ -34,6 +34,7 @@ Primary entrypoint:
 ## Operational Notes
 
 - API key is read from `YOUTUBE_API_KEY` by default (configurable via `--api-key-env`).
+- Before key lookup, the script loads dotenv entries from local `.env` (non-overriding), so shell exports still take precedence.
 - The script sleeps between API calls (`--sleep-ms`) to reduce rate-limit risk.
 - Output defaults to `<input>.enriched.csv` to avoid mutating original data.
 

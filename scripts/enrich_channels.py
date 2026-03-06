@@ -470,6 +470,59 @@ def derive_output_path(input_path: str) -> str:
     return f"{input_path}.enriched.csv"
 
 
+def parse_dotenv_line(line: str) -> tuple[str, str] | None:
+    """Parse a single dotenv line into key/value or return None for non-assignments."""
+    stripped = line.strip()
+    if not stripped or stripped.startswith("#"):
+        return None
+
+    if stripped.startswith("export "):
+        stripped = stripped[len("export ") :].strip()
+
+    if "=" not in stripped:
+        return None
+
+    key, value = stripped.split("=", 1)
+    key = key.strip()
+    if not key or not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", key):
+        return None
+
+    value = value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+        value = value[1:-1]
+    else:
+        # Keep support intentionally simple: trim inline comments for unquoted values.
+        value = value.split(" #", 1)[0].strip()
+
+    return key, value
+
+
+def load_dotenv_file(dotenv_path: str = ".env", overwrite: bool = False) -> None:
+    """Load dotenv-style key/value pairs into process environment variables."""
+    if not os.path.exists(dotenv_path):
+        return
+
+    try:
+        with open(dotenv_path, encoding="utf-8") as handle:
+            for line_number, line in enumerate(handle, start=1):
+                parsed = parse_dotenv_line(line)
+                if parsed is None:
+                    continue
+                key, value = parsed
+
+                if overwrite or key not in os.environ:
+                    os.environ[key] = value
+                else:
+                    logging.debug(
+                        "Skipping %s from %s:%s because it is already set in environment",
+                        key,
+                        dotenv_path,
+                        line_number,
+                    )
+    except OSError as error:
+        logging.warning("Unable to read %s: %s", dotenv_path, error)
+
+
 def read_rows(csv_path: str) -> tuple[list[str], list[dict[str, str]]]:
     with open(csv_path, newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
@@ -609,6 +662,7 @@ def main() -> int:
         format="%(asctime)s %(levelname)s %(message)s",
     )
 
+    load_dotenv_file(".env", overwrite=False)
     api_key = os.environ.get(args.api_key_env, "").strip()
     if not api_key:
         raise SystemExit(

@@ -1,10 +1,16 @@
+import argparse
+import os
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
 from scripts.enrich_channels import (
     build_about_summary,
     enrich_rows,
     format_subscribers,
     infer_categories,
+    main,
 )
 
 
@@ -91,6 +97,54 @@ class TestEnrichmentPipeline(unittest.TestCase):
         self.assertEqual(enriched["subscribers"], "98765")
         self.assertEqual(enriched["subscribers_readable"], "98.8K")
         self.assertIn("business", enriched["category"].lower())
+
+
+class TestApiKeyLoading(unittest.TestCase):
+    def test_main_loads_api_key_from_dotenv(self):
+        args = argparse.Namespace(
+            input="subscriptions.csv",
+            output="subscriptions.enriched.csv",
+            api_key_env="YOUTUBE_API_KEY",
+            max_recent_videos=3,
+            top_categories=5,
+            sleep_ms=0,
+            retries=0,
+            log_level="INFO",
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            env_path = Path(temp_dir) / ".env"
+            env_path.write_text("YOUTUBE_API_KEY=dotenv-token\n", encoding="utf-8")
+
+            with patch.dict(os.environ, {}, clear=True):
+                with patch("scripts.enrich_channels.parse_args", return_value=args):
+                    with patch(
+                        "scripts.enrich_channels.read_rows",
+                        return_value=(
+                            ["channel_id"],
+                            [{"channel_id": "UC123"}],
+                        ),
+                    ):
+                        with patch(
+                            "scripts.enrich_channels.enrich_rows",
+                            return_value=(
+                                ["channel_id"],
+                                [{"channel_id": "UC123"}],
+                            ),
+                        ):
+                            with patch("scripts.enrich_channels.write_rows"):
+                                with patch("scripts.enrich_channels.YouTubeClient") as mock_client:
+                                    previous_cwd = os.getcwd()
+                                    os.chdir(temp_dir)
+                                    try:
+                                        exit_code = main()
+                                    finally:
+                                        os.chdir(previous_cwd)
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(
+                mock_client.call_args.kwargs["api_key"],
+                "dotenv-token",
+            )
 
 
 if __name__ == "__main__":

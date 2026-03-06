@@ -11,3 +11,6 @@ let me know if you have any other column suggestions.
 
 ### Prompt 2
 Implement the plan.
+
+### Prompt 3
+the api key is not getting picked up from the .env file
